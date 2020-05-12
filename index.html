@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+
+    <title>Etch-a-Sketch</title>
+</head>
+
+<style>
+    body {
+        text-align: center;
+        font-family: 'PT Mono', monospace;
+    }
+
+    .drawing-section {
+        width: 10px;
+        height: 10px;
+        border: 1px solid gray;
+    }
+
+    #main-drawing-board {
+        margin: 100px auto 0 auto;
+        width: fit-content;
+        border: 1px solid gray;
+        border-radius: 2px;
+        display: grid;
+        grid-gap: 0px;
+        box-shadow: 0 8px 6px -6px black;
+    }
+
+    .input-button {
+        margin: 10px auto 0 auto;
+        width: 75px;
+        /*border-radius: 1px;*/
+    }
+</style>
+
+<body>
+
+    <h2>Etch A Sketch</h2>
+    <h3>(<em>Left click</em> to draw, <em>right click</em> to clear)</h3>
+
+    <div id="main-drawing-board">
+
+    </div>
+    <input type="button" value="reset" id="reset-button" class="input-button">
+    <input type="button" value="resize" id="resize-button" class="input-button">
+
+</body>
+
+</html>
+
+<script>
+    const DRAWBOARDSIZEX = 16;
+    const DRAWBOARDSIZEY = 16;
+
+    let drawingBoardSections = [];
+    let mainDrawingBoard = document.getElementById("main-drawing-board");
+
+    function redraw(xSize, ySize) {
+        boardSizeX = xSize
+        for (let section of drawingBoardSections) {
+            mainDrawingBoard.removeChild(section);
+        }
+        drawingBoardSections = [];
+
+        for (let i = 0; i < ySize; i++) {
+            for (let j = 0; j < xSize; j++) {
+                let drawingBoardSection = document.createElement('div');
+                drawingBoardSection.className = 'drawing-section';
+                drawingBoardSections.push(drawingBoardSection);
+                mainDrawingBoard.appendChild(drawingBoardSection);
+            }
+        }
+        mainDrawingBoard.style.gridTemplateColumns = `repeat(${boardSizeX}, 12px)`;
+
+    }
+
+    redraw(DRAWBOARDSIZEX, DRAWBOARDSIZEY);
+
+    document.getElementById('reset-button').addEventListener("click", event => {
+        for (section of drawingBoardSections) {
+            section.style.background = 'none';
+        }
+    });
+
+    document.getElementById('resize-button').addEventListener("click", event => {
+        let x = 0;
+        let y = 0;
+        do {
+            x = Number(prompt('Grid size X'));
+        }
+        while (x <= 0 || isNaN(x))
+
+        do {
+            y = Number(prompt('Grid size Y'));
+        }
+        while (y <= 0 || isNaN(y))
+
+        redraw(x, y);
+    });
+
+    function mouseDownHandlerFunction(event) {
+        if ((event.target.className === 'drawing-section') && (event.button == 0 || event.button == 2)) {
+            mainDrawingBoard.addEventListener('mouseover', mouseOverHandlerFunction);
+            if (event.button == 2) {
+                event.target.style.background = 'white';
+            } else {
+                event.target.style.background = 'black';
+            }
+            event.preventDefault();
+        }
+    }
+
+    function mouseOverHandlerFunction(event) {
+        if (event.target.className === 'drawing-section') {
+            if (event.buttons === 0) {
+                mainDrawingBoard.removeEventListener('mouseover', mouseOverHandlerFunction);
+            } else if (event.buttons === 2) {
+                event.target.style.background = 'white';
+            }
+            else {
+                event.target.style.background = 'black';
+            }
+        }
+    }
+
+    mainDrawingBoard.addEventListener("mousedown", mouseDownHandlerFunction);
+    mainDrawingBoard.addEventListener("contextmenu", event => {
+        event.preventDefault();
+    })
+</script>
